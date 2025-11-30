@@ -21,22 +21,46 @@ const generatePolicy = (
   context,
 });
 
+
 export const authorizer = async (event: APIGatewayTokenAuthorizerEvent): Promise<APIGatewayAuthorizerResult> => {
   try {
     const token = extractTokenFromHeader(event.authorizationToken);
-    
+
     if (!token) {
-      throw new Error('No token provided');
+      throw new Error("No token provided");
     }
-    
+
     const payload = verifyToken(token);
-    
-    return generatePolicy('user', 'Allow', event.methodArn, {
+
+    return generatePolicy(payload.userId, "Allow", event.methodArn, {
       userId: payload.userId,
       email: payload.email,
     });
+
   } catch (error) {
-    console.error('Authorization failed:', error);
-    throw new Error('Unauthorized');
+    console.error("Authorization failed:", error);
+    throw new Error("Unauthorized");
   }
 };
+
+
+
+// export const authorizer = async (event: APIGatewayTokenAuthorizerEvent): Promise<APIGatewayAuthorizerResult> => {
+//   try {
+//     const token = extractTokenFromHeader(event.authorizationToken);
+    
+//     if (!token) {
+//       throw new Error('No token provided');
+//     }
+    
+//     const payload = verifyToken(token);
+    
+//     return generatePolicy('user', 'Allow', event.methodArn, {
+//       userId: payload.userId,
+//       email: payload.email,
+//     });
+//   } catch (error) {
+//     console.error('Authorization failed:', error);
+//     throw new Error('Unauthorized');
+//   }
+// };
