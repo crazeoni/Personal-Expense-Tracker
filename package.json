@@ -1,0 +1,58 @@
+{
+  "name": "expense-tracker-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Personal Expense Tracker - Fullstack Application",
+  "scripts": {
+    "install:all": "pnpm install",
+    "build": "pnpm -r build",
+    "build:client": "pnpm --filter @expense-tracker/client build",
+    "build:server": "pnpm --filter @expense-tracker/server build",
+    "build:infra": "pnpm --filter @expense-tracker/infrastructure build",
+    "dev": "pnpm --filter @expense-tracker/client dev",
+    "dev:server": "pnpm --filter @expense-tracker/server dev",
+    "test": "pnpm -r test",
+    "test:watch": "pnpm -r test:watch",
+    "lint": "pnpm -r lint",
+    "lint:fix": "pnpm -r lint:fix",
+    "type-check": "pnpm -r type-check",
+    "clean": "pnpm -r clean && rm -rf node_modules",
+    "deploy": "pnpm --filter @expense-tracker/infrastructure deploy",
+    "deploy:dev": "pnpm --filter @expense-tracker/infrastructure deploy:dev",
+    "deploy:prod": "pnpm --filter @expense-tracker/infrastructure deploy:prod",
+    "destroy": "pnpm --filter @expense-tracker/infrastructure destroy"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "keywords": [
+    "expense-tracker",
+    "fullstack",
+    "serverless",
+    "aws",
+    "monorepo"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.159",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.5",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^20.19.25",
+    "@typescript-eslint/eslint-plugin": "^6.13.0",
+    "@typescript-eslint/parser": "^6.13.0",
+    "aws-cdk-lib": "^2.230.0",
+    "constructs": "^10.4.3",
+    "del-cli": "^7.0.0",
+    "eslint": "^8.54.0",
+    "rimraf": "^6.1.2",
+    "typescript": "^5.3.0",
+    "vite": "^5.4.21"
+  },
+  "dependencies": {
+    "mongodb": "^6.21.0"
+  }
+}

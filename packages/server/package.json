@@ -1,0 +1,36 @@
+{
+  "name": "@expense-tracker/server",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./dist/handlers/auth.js",
+  "scripts": {
+    "build": "node bundle.js",
+    "dev": "tsx watch src/local.ts",
+    "clean": "rimraf dist cdk.out && del-cli *.tsbuildinfo",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@expense-tracker/shared": "workspace:*",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb": "^6.21.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.159",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.5",
+    "@types/node": "^20.10.0",
+    "dotenv": "^17.2.3",
+    "esbuild": "^0.27.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.0",
+    "vitest": "^1.0.4"
+  }
+}
