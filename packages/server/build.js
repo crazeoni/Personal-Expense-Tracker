@@ -34,7 +34,4 @@ function copyRecursive(src, dest) {
   }
 }
 
-console.log('Copying shared package for Lambda...');
 copyRecursive(sharedSrc, sharedDest);
-
-console.log('✅ Shared package copied successfully!');

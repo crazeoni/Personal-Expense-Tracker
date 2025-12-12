@@ -79,5 +79,5 @@ app.get('/reports/monthly', authMiddleware, adaptLambda(monthlyReport));
 app.get('/reports/by-category', authMiddleware, adaptLambda(categoryReport));
 
 app.listen(PORT, () => {
-  console.log(`✅ Real HTTP Server listening on http://localhost:${PORT}`);
+  console.log(`Real HTTP Server listening on http://localhost:${PORT}`);
 });

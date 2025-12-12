@@ -20,21 +20,6 @@ export class ExpenseTrackerStack extends cdk.Stack {
 
     const { environment, mongodbUri, jwtSecret } = props;
 
-    // Lambda Layer for shared code
-    const sharedLayer = new lambda.LayerVersion(this, 'SharedLayer', {
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../../shared/dist')), // path to compiled shared code
-      compatibleRuntimes: [lambda.Runtime.NODEJS_20_X],
-      description: 'Shared code for expense tracker lambdas',
-    });
-
-
-    // Lambda Layer for shared dependencies
-    const dependenciesLayer = new lambda.LayerVersion(this, 'DependenciesLayer', {
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../../server/dist')),
-      compatibleRuntimes: [lambda.Runtime.NODEJS_20_X],
-      description: 'Dependencies for expense tracker lambdas',
-    });
-
     // Environment variables for all lambdas
     const lambdaEnvironment = {
       MONGODB_URI: mongodbUri,
@@ -51,7 +36,6 @@ export class ExpenseTrackerStack extends cdk.Stack {
       environment: lambdaEnvironment,
       timeout: cdk.Duration.seconds(10),
       memorySize: 256,
-      layers: [sharedLayer],
     });
 
     const loginFunction = new lambda.Function(this, 'LoginFunction', {
@@ -61,7 +45,6 @@ export class ExpenseTrackerStack extends cdk.Stack {
       environment: lambdaEnvironment,
       timeout: cdk.Duration.seconds(10),
       memorySize: 256,
-      layers: [sharedLayer],
     });
 
     // Authorizer Lambda
@@ -72,7 +55,6 @@ export class ExpenseTrackerStack extends cdk.Stack {
       environment: lambdaEnvironment,
       timeout: cdk.Duration.seconds(5),
       memorySize: 128,
-      layers: [sharedLayer],
     });
 
     // Expense Lambda Functions
@@ -83,7 +65,6 @@ export class ExpenseTrackerStack extends cdk.Stack {
       environment: lambdaEnvironment,
       timeout: cdk.Duration.seconds(10),
       memorySize: 256,
-      layers: [sharedLayer],
     });
 
     const createExpenseFunction = new lambda.Function(this, 'CreateExpenseFunction', {
@@ -93,7 +74,6 @@ export class ExpenseTrackerStack extends cdk.Stack {
       environment: lambdaEnvironment,
       timeout: cdk.Duration.seconds(10),
       memorySize: 256,
-      layers: [sharedLayer],
     });
 
     const getExpenseFunction = new lambda.Function(this, 'GetExpenseFunction', {
@@ -103,7 +83,6 @@ export class ExpenseTrackerStack extends cdk.Stack {
       environment: lambdaEnvironment,
       timeout: cdk.Duration.seconds(10),
       memorySize: 256,
-      layers: [sharedLayer],
     });
 
     const updateExpenseFunction = new lambda.Function(this, 'UpdateExpenseFunction', {
@@ -113,7 +92,6 @@ export class ExpenseTrackerStack extends cdk.Stack {
       environment: lambdaEnvironment,
       timeout: cdk.Duration.seconds(10),
       memorySize: 256,
-      layers: [sharedLayer],
     });
 
     const deleteExpenseFunction = new lambda.Function(this, 'DeleteExpenseFunction', {
@@ -123,7 +101,6 @@ export class ExpenseTrackerStack extends cdk.Stack {
       environment: lambdaEnvironment,
       timeout: cdk.Duration.seconds(10),
       memorySize: 256,
-      layers: [sharedLayer],
     });
 
     // Category Lambda Functions
@@ -134,7 +111,6 @@ export class ExpenseTrackerStack extends cdk.Stack {
       environment: lambdaEnvironment,
       timeout: cdk.Duration.seconds(10),
       memorySize: 256,
-      layers: [sharedLayer],
     });
 
     const createCategoryFunction = new lambda.Function(this, 'CreateCategoryFunction', {
@@ -144,7 +120,6 @@ export class ExpenseTrackerStack extends cdk.Stack {
       environment: lambdaEnvironment,
       timeout: cdk.Duration.seconds(10),
       memorySize: 256,
-      layers: [sharedLayer],
     });
 
     const deleteCategoryFunction = new lambda.Function(this, 'DeleteCategoryFunction', {
@@ -154,7 +129,6 @@ export class ExpenseTrackerStack extends cdk.Stack {
       environment: lambdaEnvironment,
       timeout: cdk.Duration.seconds(10),
       memorySize: 256,
-      layers: [sharedLayer],
     });
 
     // Report Lambda Functions
@@ -165,7 +139,6 @@ export class ExpenseTrackerStack extends cdk.Stack {
       environment: lambdaEnvironment,
       timeout: cdk.Duration.seconds(10),
       memorySize: 256,
-      layers: [sharedLayer],
     });
 
     const categoryReportFunction = new lambda.Function(this, 'CategoryReportFunction', {
@@ -175,42 +148,50 @@ export class ExpenseTrackerStack extends cdk.Stack {
       environment: lambdaEnvironment,
       timeout: cdk.Duration.seconds(10),
       memorySize: 256,
-      layers: [sharedLayer],
     });
 
-    // API Gateway
-    // const api = new apigateway.RestApi(this, 'ExpenseTrackerApi', {
-    //   restApiName: `expense-tracker-api-${environment}`,
-    //   description: 'Expense Tracker API',
-    //   defaultCorsPreflightOptions: {
-    //     allowOrigins: apigateway.Cors.ALL_ORIGINS,
-    //     allowMethods: apigateway.Cors.ALL_METHODS,
-    //     allowHeaders: ['Content-Type', 'Authorization'],
-    //     allowCredentials: true,
-    //   },
-    // });
+    // Helper functions for CORS
+    const getAllowedOrigins = () => {
+      if (environment === 'dev') {
+        return ['http://localhost:5173', 'http://localhost:3000'];
+      }
+      return [
+        'https://d10wqb8koma6z3.cloudfront.net',
+        'https://d2o2trtip26gfo.cloudfront.net',
+      ];
+    };
 
+    const getGatewayResponseOrigin = () => {
+      if (environment === 'dev') {
+        return "'http://localhost:5173'";
+      }
+      return "'https://d10wqb8koma6z3.cloudfront.net'";
+    };
+
+    // API Gateway with proper CORS
     const api = new apigateway.RestApi(this, 'ExpenseTrackerApi', {
       restApiName: `expense-tracker-api-${environment}`,
       description: 'Expense Tracker API',
       defaultCorsPreflightOptions: {
-        allowOrigins: environment === 'dev' 
-          ? ['http://localhost:5173', 'http://localhost:3000']
-          : apigateway.Cors.ALL_ORIGINS, // or specify production domains
+        allowOrigins: getAllowedOrigins(),
         allowMethods: apigateway.Cors.ALL_METHODS,
-        allowHeaders: ['Content-Type', 'Authorization', 'X-Amz-Date', 'X-Api-Key', 'X-Amz-Security-Token'],
-        allowCredentials: environment === 'dev', // Only for dev with specific origins
+        allowHeaders: [
+          'Content-Type',
+          'Authorization',
+          'X-Amz-Date',
+          'X-Api-Key',
+          'X-Amz-Security-Token',
+        ],
       },
     });
 
-
-    // Add Gateway Responses to handle CORS on errors
+    // Add Gateway Responses for CORS on errors
     api.addGatewayResponse('Unauthorized', {
       type: apigateway.ResponseType.UNAUTHORIZED,
       statusCode: '401',
       responseHeaders: {
-        'Access-Control-Allow-Origin': environment === 'dev' ? "'http://localhost:5173'" : "'*'",
-        'Access-Control-Allow-Headers': "'Content-Type,Authorization'",
+        'Access-Control-Allow-Origin': getGatewayResponseOrigin(),
+        'Access-Control-Allow-Headers': "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'",
         'Access-Control-Allow-Methods': "'GET,POST,PUT,DELETE,OPTIONS'",
       },
     });
@@ -219,8 +200,8 @@ export class ExpenseTrackerStack extends cdk.Stack {
       type: apigateway.ResponseType.ACCESS_DENIED,
       statusCode: '403',
       responseHeaders: {
-        'Access-Control-Allow-Origin': environment === 'dev' ? "'http://localhost:5173'" : "'*'",
-        'Access-Control-Allow-Headers': "'Content-Type,Authorization'",
+        'Access-Control-Allow-Origin': getGatewayResponseOrigin(),
+        'Access-Control-Allow-Headers': "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'",
         'Access-Control-Allow-Methods': "'GET,POST,PUT,DELETE,OPTIONS'",
       },
     });
@@ -228,8 +209,8 @@ export class ExpenseTrackerStack extends cdk.Stack {
     api.addGatewayResponse('Default4xx', {
       type: apigateway.ResponseType.DEFAULT_4XX,
       responseHeaders: {
-        'Access-Control-Allow-Origin': environment === 'dev' ? "'http://localhost:5173'" : "'*'",
-        'Access-Control-Allow-Headers': "'Content-Type,Authorization'",
+        'Access-Control-Allow-Origin': getGatewayResponseOrigin(),
+        'Access-Control-Allow-Headers': "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'",
         'Access-Control-Allow-Methods': "'GET,POST,PUT,DELETE,OPTIONS'",
       },
     });
@@ -237,19 +218,17 @@ export class ExpenseTrackerStack extends cdk.Stack {
     api.addGatewayResponse('Default5xx', {
       type: apigateway.ResponseType.DEFAULT_5XX,
       responseHeaders: {
-        'Access-Control-Allow-Origin': environment === 'dev' ? "'http://localhost:5173'" : "'*'",
-        'Access-Control-Allow-Headers': "'Content-Type,Authorization'",
+        'Access-Control-Allow-Origin': getGatewayResponseOrigin(),
+        'Access-Control-Allow-Headers': "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'",
         'Access-Control-Allow-Methods': "'GET,POST,PUT,DELETE,OPTIONS'",
       },
     });
 
-
-    
     // Lambda Authorizer
     const authorizer = new apigateway.TokenAuthorizer(this, 'JwtAuthorizer', {
       handler: authorizerFunction,
       identitySource: 'method.request.header.Authorization',
-      resultsCacheTtl: cdk.Duration.minutes(5),
+      resultsCacheTtl: cdk.Duration.seconds(0), // Disabled for debugging
     });
 
     // Auth routes (no authorization)
@@ -322,7 +301,7 @@ export class ExpenseTrackerStack extends cdk.Stack {
       autoDeleteObjects: true,
     });
 
-    // CloudFront Distribution (optional, for better performance)
+    // CloudFront Distribution
     const distribution = new cloudfront.Distribution(this, 'Distribution', {
       defaultBehavior: {
         origin: new origins.S3Origin(websiteBucket),

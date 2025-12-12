@@ -17,18 +17,18 @@ Promise.all(
       platform: 'node',
       target: 'node20',
       outfile: `dist/${handler}.js`,
-      external: ['aws-sdk'],  // Only exclude aws-sdk, include everything else
+      external: ['aws-sdk'],  // excludes aws-sdk, include everything else
       format: 'cjs',
       minify: false
     }).then(() => {
-      console.log(`✅ Bundled ${handler}`);
+      console.log(`Bundled ${handler}`);
     }).catch((err) => {
-      console.error(`❌ Failed to bundle ${handler}:`, err);
+      console.error(`Failed to bundle ${handler}:`, err);
       throw err;
     })
   )
 ).then(() => {
-  console.log('🎉 All handlers bundled successfully!');
+  console.log('All handlers bundled successfully!');
 }).catch(() => {
   process.exit(1);
 });

@@ -20,18 +20,15 @@ export const registerUser = async (
   password: string
 ): Promise<AuthResponse> => {
 
-  console.log(`[DEBUG REGISTER] Attempting to register email: ${email}`); // ADDED LOG
   const usersCol = getUsersCollection();
   const categoriesCol = getCategoriesCollection();
 
   // Check if user exists
   const existingUser = await usersCol.findOne({ email });
   if (existingUser) {
-    console.log(`[DEBUG REGISTER] User already exists: ${email}`); // ADDED LOG
     throw new Error(ERROR_MESSAGES.USER_EXISTS);
   }
 
-  console.log(`[DEBUG REGISTER] User does not exist, creating new user...`); // ADDED LOG
 
   // Create user
   const passwordHash = await hashPassword(password);
@@ -47,9 +44,8 @@ export const registerUser = async (
   };
 
   await usersCol.insertOne(userDoc);
-  console.log(`[DEBUG REGISTER] User created successfully.`); // ADDED LOG
 
-  // Create default categories for user
+  // Default categories for user
   const defaultCategories = DEFAULT_CATEGORIES.map((name) => ({
     _id: `cat_${userId}_${name.toLowerCase()}`,
     userId,
@@ -59,7 +55,6 @@ export const registerUser = async (
   }));
 
   await categoriesCol.insertMany(defaultCategories);
-  console.log(`[DEBUG REGISTER] Default categories created.`); // ADDED LOG
 
   const user = userDocToUser(userDoc);
   const token = generateToken(user);
@@ -78,21 +73,18 @@ export const loginUser = async (
 ): Promise<AuthResponse> => {
   const usersCol = getUsersCollection();
 
-  console.log(`[DEBUG] Login attempt for email: ${email}`); // ADDED LOG
 
   const userDoc = await usersCol.findOne({ email });
   if (!userDoc) {
     throw new Error(ERROR_MESSAGES.INVALID_CREDENTIALS);
   }
 
-  console.log(`[DEBUG] User found. Comparing passwords...`); // ADDED LOG
 
   const isValidPassword = await comparePasswords(password, userDoc.passwordHash);
   if (!isValidPassword) {
     throw new Error(ERROR_MESSAGES.INVALID_CREDENTIALS);
   }
 
-  console.log(`[DEBUG] Password is valid! Generating token.`); // ADDED LOG
 
   const user = userDocToUser(userDoc);
   const token = generateToken(user);

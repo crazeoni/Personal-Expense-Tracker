@@ -10,10 +10,11 @@ interface ExpenseListProps {
 }
 
 const ExpenseList = ({ onAddExpense, isLoading }: ExpenseListProps) => {
-  // FIXED: Destructure 'data' from the hook result
+  // Destructure 'data' from the hook result
   const { data } = useExpenses();
   // Access the items array from the data, using optional chaining
-  const expenses = data?.items;
+  //const expenses = data?.items;
+  const expenses = data?.items || [];
 
   return (
     <div className="bg-white rounded-xl shadow-md p-6">
@@ -32,7 +33,7 @@ const ExpenseList = ({ onAddExpense, isLoading }: ExpenseListProps) => {
         <div className="text-center py-8 text-gray-500">Loading expenses...</div>
       ) : expenses && expenses.length > 0 ? ( // Check if expenses array exists and has length
         <div className="space-y-3">
-          {/* FIXED: Type the map callback parameter explicitly as Expense */}
+          {/* Type the map callback parameter explicitly as Expense */}
           {expenses.map((expense: Expense) => (
             <ExpenseItem key={expense.id} expense={expense} />
           ))}

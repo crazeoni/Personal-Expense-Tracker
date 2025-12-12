@@ -42,13 +42,12 @@ const Dashboard = () => {
   }, [expenses]);
 
   const categoryTotals = useMemo(() => {
-    // Type the accumulator object correctly
     const totals: Record<string, number> = {};
-    // Type 'exp' explicitly as Expense
+    // 'exp' explicitly as Expense
     (expenses || []).forEach((exp: Expense) => {
       totals[exp.category] = (totals[exp.category] || 0) + exp.amount;
     });
-    // Type Object.entries result explicitly as array of tuples [string, number]
+    // Object.entries result explicitly as array of tuples [string, number]
     return Object.entries(totals) as [string, number][];
   }, [expenses]); // Dependency changed from expenses?.items to just expenses
 

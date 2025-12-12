@@ -7,11 +7,11 @@ import { useCategories } from '../lib/hooks/useCategories';
 
 interface ExpenseFormProps {
   onClose: () => void;
-  onSubmit: (data: any /* Replace 'any' with your actual ExpenseInput type if available */) => void;
+  onSubmit: (data: any /* Replace 'any' with actual ExpenseInput type if available */) => void;
 }
 
 const ExpenseForm = ({ onClose}: ExpenseFormProps) => {
-  // Fixes TS2322: 'date' can be string | undefined from useCategories hook if not careful
+  // TS2322: 'date' can be string | undefined from useCategories hook if not careful
   const [formData, setFormData] = useState<CreateExpenseInput>({
     amount: 0,
     description: '',
@@ -19,14 +19,19 @@ const ExpenseForm = ({ onClose}: ExpenseFormProps) => {
     date: new Date().toISOString().split('T')[0]!,
   });
 
-  // FIXED: 'data' is the array itself, not data.items
+  // : 'data' is the array itself, not data.items
   const { data: categories } = useCategories();
   const createExpense = useCreateExpense();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    try {
     await createExpense.mutateAsync(formData);
     onClose();
+    } catch (error) {
+      console.error('Failed to create expense:', error);
+    }
   };
 
   return (
@@ -51,7 +56,6 @@ const ExpenseForm = ({ onClose}: ExpenseFormProps) => {
               type="number"
               step="0.01"
               value={formData.amount || ''}
-              // FIXED: Explicitly type 'e' event handler
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setFormData({ ...formData, amount: parseFloat(e.target.value) })
               }
@@ -66,7 +70,6 @@ const ExpenseForm = ({ onClose}: ExpenseFormProps) => {
             <input
               type="date"
               value={formData.date}
-              // FIXED: Explicitly type 'e' event handler
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, date: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
               required
@@ -81,7 +84,6 @@ const ExpenseForm = ({ onClose}: ExpenseFormProps) => {
           <input
             type="text"
             value={formData.description}
-            // FIXED: Explicitly type 'e' event handler
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               setFormData({ ...formData, description: e.target.value })
             }
@@ -96,13 +98,12 @@ const ExpenseForm = ({ onClose}: ExpenseFormProps) => {
           </label>
           <select
             value={formData.category}
-            // FIXED: Explicitly type 'e' event handler (HTMLSelectElement for selects)
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
               setFormData({ ...formData, category: e.target.value })
             }
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
           >
-            {/* FIXED: Add optional chaining and type 'cat' explicitly */}
+            {/* Added optional chaining and type 'cat' explicitly */}
             {categories?.map((cat: Category) => ( 
               <option key={cat.id} value={cat.name}>
                 {cat.name}
